@@ -3,10 +3,10 @@
 // using Linked List
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "ProcessData.h"
 // NodePQ
 typedef struct node {
-	int data;
+	processData data;
 
 	// Lower values indicate higher priority
 	int priority;
@@ -17,7 +17,7 @@ typedef struct node {
 } NodePQ;
 
 // Function to Create A New NodePQ
-NodePQ* newNodePQ(int d, int p)
+NodePQ* newNodePQ(processData d, int p)
 {
 	NodePQ* temp = (NodePQ*)malloc(sizeof(NodePQ));
 	temp->data = d;
@@ -28,7 +28,7 @@ NodePQ* newNodePQ(int d, int p)
 }
 
 // Return the value at head
-int peekPQ(NodePQ** head)
+processData peekPQ(NodePQ** head)
 {
 	return (*head)->data;
 }
@@ -43,7 +43,7 @@ void popPQ(NodePQ** head)
 }
 
 // Function to pushPQ according to priority
-void pushPQ(NodePQ** head, int d, int p)
+void pushPQ(NodePQ** head, processData d, int p)
 {
 	NodePQ* start = (*head);
 

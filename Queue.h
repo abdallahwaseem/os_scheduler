@@ -2,10 +2,11 @@
 // A C program to demonstrate linked list based implementation of queue
 #include <stdio.h>
 #include <stdlib.h>
+#include "ProcessData.h"
 
 // A linked list (LL) node to store a queue entry
 struct QNode {
-	int key;
+	processData key;
 	struct QNode* next;
 };
 
@@ -16,7 +17,7 @@ struct Queue {
 };
 
 // A utility function to create a new linked list node.
-struct QNode* newNode(int k)
+struct QNode* newNode(processData k)
 {
 	struct QNode* temp = (struct QNode*)malloc(sizeof(struct QNode));
 	temp->key = k;
@@ -33,7 +34,7 @@ struct Queue* createQueue()
 }
 
 // The function to add a key k to q
-void enQueue(struct Queue* q, int k)
+void enQueue(struct Queue* q, processData k)
 {
 	// Create a new LL node
 	struct QNode* temp = newNode(k);
@@ -69,18 +70,3 @@ void deQueue(struct Queue* q)
 }
 
 // Driver Program to test anove functions
-int main()
-{
-	struct Queue* q = createQueue();
-	enQueue(q, 10);
-	enQueue(q, 20);
-	deQueue(q);
-	deQueue(q);
-	enQueue(q, 30);
-	enQueue(q, 40);
-	enQueue(q, 50);
-	deQueue(q);
-	printf("Queue Front : %d \n", q->front->key);
-	printf("Queue Rear : %d", q->rear->key);
-	return 0;
-}
