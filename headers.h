@@ -10,12 +10,15 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
-#include <PriorityQueue.h>
-#include <Queue.h>
+#include "ProcessData.h"
+#include "PriorityQueue.h"
+#include "Queue.h"
 
 typedef short bool;
 #define true 1
 #define false 0
+#define running 1
+#define waiting 0
 
 #define SHKEY 300
 

@@ -2,7 +2,7 @@
 // A C program to demonstrate linked list based implementation of queue
 #include <stdio.h>
 #include <stdlib.h>
-#include "ProcessData.h"
+
 
 // A linked list (LL) node to store a queue entry
 struct QNode {
@@ -69,4 +69,13 @@ void deQueue(struct Queue* q)
 	free(temp);
 }
 
-// Driver Program to test anove functions
+processData peekQueue(struct Queue* q)
+{
+	return q->front->key;
+}
+
+
+int isEmptyQueue(struct Queue* q)
+{
+	return q->front == NULL;
+}

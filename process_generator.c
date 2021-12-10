@@ -1,12 +1,16 @@
 #include "headers.h"
+#include <string.h>
 
 void clearResources(int);
+void ReadFile(struct Queue* q);
 
 int main(int argc, char * argv[])
 {
     signal(SIGINT, clearResources);
     // TODO Initialization
     // 1. Read the input files.
+    struct Queue* All_Processes = createQueue();
+    ReadFile(All_Processes);
     // 2. Ask the user for the chosen scheduling algorithm and its parameters, if there are any.
     // 3. Initiate and create the scheduler and clock processes.
     // 4. Use this function after creating the clock process to initialize clock
@@ -24,4 +28,45 @@ int main(int argc, char * argv[])
 void clearResources(int signum)
 {
     //TODO Clears all resources in case of interruption
+}
+
+void ReadFile(struct Queue* q)
+{
+    char *filename = "processes.txt";
+    FILE *fp = fopen(filename, "r");
+
+    if (fp == NULL)
+    {
+        printf("Error: could not open file %s", filename);
+        return;
+    }
+
+    // reading line by line, max 256 bytes
+    const unsigned MAX_LENGTH = 256;
+    char buffer[MAX_LENGTH];
+
+    while (fgets(buffer, MAX_LENGTH, fp))
+    {
+        if(buffer[0] != '#')
+        {
+            processData temp;
+            int processBuffer[4];
+            int index = 0;
+            char* token = strtok(buffer, "\t");
+            // Keep printing tokens while one of the
+            // delimiters present in str[].
+            while (token != NULL) {
+                processBuffer[index] = atoi(token);
+                token = strtok(NULL, "\t");
+                index++;
+            }
+            temp.id = processBuffer[0];
+            temp.arrivaltime = processBuffer[1];
+            temp.runningtime = processBuffer[2];
+            temp.priority = processBuffer[3];
+            enQueue(q,temp);
+        }
+    }   
+    // close the file
+    fclose(fp);
 }
