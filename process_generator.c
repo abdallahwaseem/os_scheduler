@@ -3,6 +3,7 @@
 #include <string.h>
 void clearResources(int);
 void ReadFile(struct Queue *q);
+void ChooseAlgorithms(char *argv[]);
 
 int main(int argc, char *argv[])
 {
@@ -12,40 +13,7 @@ int main(int argc, char *argv[])
     struct Queue *All_Processes = createQueue();
     ReadFile(All_Processes);
     // 2. Ask the user for the chosen scheduling algorithm and its parameters, if there are any.
-    printf("\nPlease enter scheduling algorithm : \n1)HPF\n2)SRTN\n3)RR)\n ");
-    int algo;
-    char quantum[10];
-    scanf("%d", &algo);
-    if (algo == 3)
-    {
-        // Round Robin
-        printf("\nPlease enter Quantum: \n");
-        scanf("%s", quantum);
-    }
-    char *argve[] = {"schedulerRR.out", quantum, NULL};
-    // 3. Initiate and create the scheduler and clock processes.
-    int pid = fork();
-    if (pid == 0)
-    {
-        switch (algo)
-        {
-        case 1:
-            // Non-preemptive Highest Priority First
-            execve("schedulerHPF.out", argv, NULL);
-            break;
-        case 2:
-            execve("schedulerSRTN.out", argv, NULL);
-            // Shortest Remaining time Next
-            break;
-        case 3:
-            // Round Robin
-            execve(argve[0], &argve[0], NULL);
-            break;
-
-        default:
-            break;
-        }
-    }
+    ChooseAlgorithms(argv);
     // 4. Use this function after creating the clock process to initialize clock
     initClk();
     // To get time use this
@@ -105,4 +73,42 @@ void ReadFile(struct Queue *q)
     }
     // close the file
     fclose(fp);
+}
+
+void ChooseAlgorithms(char *argv[])
+{
+    printf("\nPlease enter scheduling algorithm : \n1)HPF\n2)SRTN\n3)RR)\n ");
+    int algo;
+    char quantum[10];
+    scanf("%d", &algo);
+    if (algo == 3)
+    {
+        // Round Robin
+        printf("\nPlease enter Quantum: \n");
+        scanf("%s", quantum);
+    }
+    char *argve[] = {"schedulerRR.out", quantum, NULL};
+    // 3. Initiate and create the scheduler and clock processes.
+    int pid = fork();
+    if (pid == 0)
+    {
+        switch (algo)
+        {
+        case 1:
+            // Non-preemptive Highest Priority First
+            execve("schedulerHPF.out", argv, NULL);
+            break;
+        case 2:
+            execve("schedulerSRTN.out", argv, NULL);
+            // Shortest Remaining time Next
+            break;
+        case 3:
+            // Round Robin
+            execve(argve[0], &argve[0], NULL);
+            break;
+
+        default:
+            break;
+        }
+    }
 }
