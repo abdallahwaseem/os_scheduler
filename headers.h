@@ -13,6 +13,7 @@
 #include "ProcessData.h"
 #include "PriorityQueue.h"
 #include "Queue.h"
+#include "msgbuff.h"
 
 typedef short bool;
 #define true 1

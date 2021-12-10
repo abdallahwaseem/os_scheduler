@@ -3,7 +3,10 @@
 #include <string.h>
 void clearResources(int);
 void ReadFile(struct Queue *q);
-void ChooseAlgorithms(char *argv[]);
+int ChooseAlgorithms(char *argv[]);
+void InitializeClock(char *argv[]);
+int CreateMsgQueueIPC();
+void SendToScheduler(struct Queue *q,int msgq_id);
 
 int main(int argc, char *argv[])
 {
@@ -13,25 +16,74 @@ int main(int argc, char *argv[])
     struct Queue *All_Processes = createQueue();
     ReadFile(All_Processes);
     // 2. Ask the user for the chosen scheduling algorithm and its parameters, if there are any.
-    ChooseAlgorithms(argv);
+    int SchedulerPiD = ChooseAlgorithms(argv);
     // 4. Use this function after creating the clock process to initialize clock
+    InitializeClock(argv);
     initClk();
     // To get time use this
     int x = getClk();
     printf("current time is %d\n", x);
     // TODO Generation Main Loop
     // 5. Create a data structure for processes and provide it with its parameters.
+    //Done it is in All_Processes and read file
     // 6. Send the information to the scheduler at the appropriate time.
-    // 7. Clear clock resources
+    int msgq_id = CreateMsgQueueIPC();
+    SendToScheduler(All_Processes,msgq_id);
+    // 7. Clear clock resources and kill the Scheduler
+    kill(SchedulerPiD,SIGINT);
+    clearResources(msgq_id);
     destroyClk(true);
 }
 
-void clearResources(int signum)
+void clearResources(int msgq_id)
 {
     // TODO Clears all resources in case of interruption
-
-    // TODO Clears all resources in case of interruption
+    msgctl(msgq_id,IPC_RMID,(struct msqid_ds *)0);
 }
+
+void SendToScheduler(struct Queue *All_Processes,int msgq_id)
+{
+    //this loops means that there is still processes in Queue
+    while(!isEmptyQueue(All_Processes))
+    {
+        int x = getClk();
+        int ArrivalTop = peekQueue(All_Processes).arrivaltime;
+        while(ArrivalTop == x)
+        {
+            printf("\n send queuye \n");
+            deQueue(All_Processes);
+            if(!isEmptyQueue(All_Processes))
+                ArrivalTop = peekQueue(All_Processes).arrivaltime;
+            else
+                ArrivalTop = -1;
+        }
+    }
+}
+
+
+int CreateMsgQueueIPC()
+{
+    key_t key_id;
+    int msgq_id ;
+    key_id = ftok("file",100);
+    msgq_id = msgget(key_id,0666 | IPC_CREAT);
+    if(msgq_id == -1)
+    {
+        perror("Error in create");
+        exit(-1);
+    }
+
+    return msgq_id;
+}
+
+void InitializeClock(char *argv[])
+{
+    int pid = fork();
+    if (pid == 0)
+    {
+        execve("clk.out", argv, NULL);
+    }
+} 
 
 void ReadFile(struct Queue *q)
 {
@@ -68,6 +120,9 @@ void ReadFile(struct Queue *q)
             temp.arrivaltime = processBuffer[1];
             temp.runningtime = processBuffer[2];
             temp.priority = processBuffer[3];
+            temp.waitingtime = 0;
+            temp.remainingtime = processBuffer[2];
+            temp.status = waiting;
             enQueue(q, temp);
         }
     }
@@ -75,7 +130,7 @@ void ReadFile(struct Queue *q)
     fclose(fp);
 }
 
-void ChooseAlgorithms(char *argv[])
+int ChooseAlgorithms(char *argv[])
 {
     printf("\nPlease enter scheduling algorithm : \n1)HPF\n2)SRTN\n3)RR)\n ");
     int algo;
@@ -111,4 +166,5 @@ void ChooseAlgorithms(char *argv[])
             break;
         }
     }
+    return pid;
 }
