@@ -5,21 +5,21 @@
 #include <stdlib.h>
 
 // NodePQ
-typedef struct node {
+typedef struct node
+{
 	processData data;
 
 	// Lower values indicate higher priority
 	int priority;
 
-	struct node* next;
-
+	struct node *next;
 
 } NodePQ;
 
 // Function to Create A New NodePQ
-NodePQ* newNodePQ(processData d, int p)
+NodePQ *newNodePQ(processData d, int p)
 {
-	NodePQ* temp = (NodePQ*)malloc(sizeof(NodePQ));
+	NodePQ *temp = (NodePQ *)malloc(sizeof(NodePQ));
 	temp->data = d;
 	temp->priority = p;
 	temp->next = NULL;
@@ -28,43 +28,46 @@ NodePQ* newNodePQ(processData d, int p)
 }
 
 // Return the value at head
-processData peekPQ(NodePQ** head)
+processData peekPQ(NodePQ **head)
 {
 	return (*head)->data;
 }
 
 // Removes the element with the
 // highest priority form the list
-void popPQ(NodePQ** head)
+void popPQ(NodePQ **head)
 {
-	NodePQ* temp = *head;
+	NodePQ *temp = *head;
 	(*head) = (*head)->next;
 	free(temp);
 }
 
 // Function to pushPQ according to priority
-void pushPQ(NodePQ** head, processData d, int p)
+void pushPQ(NodePQ **head, processData d, int p)
 {
-	NodePQ* start = (*head);
+	NodePQ *start = (*head);
 
 	// Create new NodePQ
-	NodePQ* temp = newNodePQ(d, p);
+	NodePQ *temp = newNodePQ(d, p);
 
 	// Special Case: The head of list has lesser
 	// priority than new node. So insert new
 	// node before head node and change head node.
-	if ((*head)->priority > p) {
+	if ((*head)->priority > p)
+	{
 
 		// Insert New NodePQ before head
 		temp->next = *head;
 		(*head) = temp;
 	}
-	else {
+	else
+	{
 
 		// Traverse the list and find a
 		// position to insert new node
 		while (start->next != NULL &&
-			start->next->priority < p) {
+			   start->next->priority < p)
+		{
 			start = start->next;
 		}
 
@@ -76,8 +79,7 @@ void pushPQ(NodePQ** head, processData d, int p)
 }
 
 // Function to check is list is empty
-int isEmptyPQ(NodePQ** head)
+int isEmptyPQ(NodePQ **head)
 {
 	return (*head) == NULL;
 }
-
