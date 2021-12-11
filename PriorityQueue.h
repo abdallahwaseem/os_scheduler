@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// To create a Queue call struct QueuePQ* Queue_name = createQueuePQ() first 
+// then you can can any function 
 // A linked list (LL) node to store a queue entry
 struct QNodePQ {
 	processData key;
