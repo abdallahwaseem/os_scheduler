@@ -1,72 +1,68 @@
-// taken from geeks from geeks: https://www.geeksforgeeks.org/priority-queue-using-linked-list/
-// C code to implement Priority Queue
-// using Linked List
+//Taken from https://www.geeksforgeeks.org/queue-linked-list-implementation/
+// A C program to demonstrate linked list based implementation of queue
 #include <stdio.h>
 #include <stdlib.h>
 
-// NodePQ
-typedef struct node
-{
-	processData data;
-
-	// Lower values indicate higher priority
+// A linked list (LL) node to store a queue entry
+struct QNodePQ {
+	processData key;
+    // Lower values indicate higher priority
 	int priority;
 
-	struct node *next;
+	struct QNodePQ* next;
+};
 
-} NodePQ;
+// The queue, front stores the front node of LL and rear stores the
+// last node of LL
+struct QueuePQ {
+	struct QNodePQ *front, *rear;
+};
 
-// Function to Create A New NodePQ
-NodePQ *newNodePQ(processData d, int p)
+// A utility function to create a new linked list node.
+struct QNodePQ* newNodePQ(processData k, int p)
 {
-	NodePQ *temp = (NodePQ *)malloc(sizeof(NodePQ));
-	temp->data = d;
-	temp->priority = p;
+	struct QNodePQ* temp = (struct QNodePQ*)malloc(sizeof(struct QNodePQ));
+	temp->key = k;
+    temp->priority = p;
 	temp->next = NULL;
-
 	return temp;
 }
 
-// Return the value at head
-processData peekPQ(NodePQ **head)
+// A utility function to create an empty queue
+struct QueuePQ* createQueuePQ()
 {
-	return (*head)->data;
+	struct QueuePQ* q = (struct QueuePQ*)malloc(sizeof(struct QueuePQ));
+	q->front = q->rear = NULL;
+	return q;
 }
 
-// Removes the element with the
-// highest priority form the list
-void popPQ(NodePQ **head)
+// The function to add a key k to q
+void enQueuePQ(struct QueuePQ* q, processData k, int priority)
 {
-	NodePQ *temp = *head;
-	(*head) = (*head)->next;
-	free(temp);
-}
+    struct QNodePQ *start = q->front;
+	// Create a new LL node
+	struct QNodePQ* temp = newNodePQ(k,priority);
 
-// Function to pushPQ according to priority
-void pushPQ(NodePQ **head, processData d, int p)
-{
-	NodePQ *start = (*head);
-
-	// Create new NodePQ
-	NodePQ *temp = newNodePQ(d, p);
-
-	// Special Case: The head of list has lesser
+	// If queue is empty, then new node is front and rear both
+	if (q->rear == NULL) {
+		q->front = q->rear = temp;
+		return;
+	}
+    // Special Case: The head of list has lesser
 	// priority than new node. So insert new
 	// node before head node and change head node.
-	if ((*head)->priority > p)
+	if (q->front->priority > priority)
 	{
-
-		// Insert New NodePQ before head
-		temp->next = *head;
-		(*head) = temp;
+		// Insert New Node before head
+		temp->next = q->front;
+		(q)->front = temp;
 	}
 	else
 	{
 
 		// Traverse the list and find a
 		// position to insert new node
-		while (start->next != NULL &&
-			   start->next->priority < p)
+		while (start->next != NULL &&start->next->priority < priority)
 		{
 			start = start->next;
 		}
@@ -75,11 +71,41 @@ void pushPQ(NodePQ **head, processData d, int p)
 		// or at required position
 		temp->next = start->next;
 		start->next = temp;
+        if(temp->next == NULL)
+        {
+            q->rear = temp;
+        }
 	}
 }
 
-// Function to check is list is empty
-int isEmptyPQ(NodePQ **head)
+// Function to remove a key from given queue q
+void deQueuePQ(struct QueuePQ* q)
 {
-	return (*head) == NULL;
+	// If queue is empty, return NULL.
+	if (q->front == NULL)
+		return;
+
+	// Store previous front and move front one node ahead
+	struct QNodePQ* temp = q->front;
+
+	q->front = q->front->next;
+
+	// If front becomes NULL, then change rear also as NULL
+	if (q->front == NULL)
+		q->rear = NULL;
+
+	free(temp);
 }
+
+processData peekQueuePQ(struct QueuePQ* q)
+{
+	return q->front->key;
+}
+
+
+int isEmptyQueuePQ(struct QueuePQ* q)
+{
+	return q->front == NULL;
+}
+
+

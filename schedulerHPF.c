@@ -16,9 +16,9 @@ int main(int argc, char *argv[])
 
     signal(SIGALRM, sigalrm_handler);
     // Initialize message queue
-    key_t key_id = ftok("file_hayet3emel", 66);
+    key_t key_id = ftok("file",100);
     int msgqid = msgget(key_id, 0644);
-    struct msgBuff message;
+    msgBuff message;
 
     // For the first process received
     int rec_val;
