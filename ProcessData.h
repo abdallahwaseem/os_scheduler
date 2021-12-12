@@ -1,4 +1,5 @@
-typedef struct ProcessData {
+typedef struct ProcessData
+{
     int arrivaltime;
     int priority;
     int runningtime;

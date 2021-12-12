@@ -6,8 +6,8 @@ void ReadFile(struct Queue *q);
 int ChooseAlgorithms(char *argv[]);
 void InitializeClock(char *argv[]);
 int CreateMsgQueueIPC();
-void SendToScheduler(struct Queue *q,int msgq_id);
-void SendToQueueIPC(processData Data , int msq_id);
+void SendToScheduler(struct Queue *q, int msgq_id, int SchedulerPiD);
+void SendToQueueIPC(processData Data, int msq_id);
 
 int main(int argc, char *argv[])
 {
@@ -29,9 +29,9 @@ int main(int argc, char *argv[])
     //Done it is in All_Processes and read file
     // 6. Send the information to the scheduler at the appropriate time.
     int msgq_id = CreateMsgQueueIPC();
-    SendToScheduler(All_Processes,msgq_id);
+    SendToScheduler(All_Processes, msgq_id, SchedulerPiD);
     // 7. Clear clock resources and kill the Scheduler
-    kill(SchedulerPiD,SIGINT);
+    kill(SchedulerPiD, SIGINT);
     clearResources(msgq_id);
     destroyClk(true);
 }
@@ -39,44 +39,49 @@ int main(int argc, char *argv[])
 void clearResources(int msgq_id)
 {
     // TODO Clears all resources in case of interruption
-    msgctl(msgq_id,IPC_RMID,(struct msqid_ds *)0);
+    msgctl(msgq_id, IPC_RMID, (struct msqid_ds *)0);
 }
 
-void SendToScheduler(struct Queue *All_Processes,int msgq_id)
+void SendToScheduler(struct Queue *All_Processes, int msgq_id, int SchedulerPiD)
 {
     //this loops means that there is still processes in Queue
-    while(!isEmptyQueue(All_Processes))
+    while (!isEmptyQueue(All_Processes))
     {
+        int wakeSchedule = false;
         int x = getClk();
         int ArrivalTop = peekQueue(All_Processes).arrivaltime;
-        while(ArrivalTop == x)
+        while (ArrivalTop == x)
         {
             /// Send to IPCS :
+            wakeSchedule = true;
             processData Msg = peekQueue(All_Processes);
-            SendToQueueIPC(Msg , msgq_id);
+            SendToQueueIPC(Msg, msgq_id);
             deQueue(All_Processes);
-            if(!isEmptyQueue(All_Processes))
+            if (!isEmptyQueue(All_Processes))
                 ArrivalTop = peekQueue(All_Processes).arrivaltime;
             else
                 ArrivalTop = -1;
         }
-        //wake after 
+        //wake after
+        if (wakeSchedule)
+        {
+            wakeSchedule = false;
+            kill(SchedulerPiD, SIGALRM);
+        }
         //int wakeTime = peekQueue(All_Processes).arrivaltime - x;
         //alarm();
         //pause();
     }
 }
 
-
-void SendToQueueIPC(processData Data , int msq_id)
+void SendToQueueIPC(processData Data, int msq_id)
 {
     msgBuff message;
     message.mtype = 1;
     message.Data = Data;
-    int send_val = msgsnd(msq_id,&message,sizeof(message.Data), !IPC_NOWAIT);
-    if(send_val == -1)
+    int send_val = msgsnd(msq_id, &message, sizeof(message.Data), !IPC_NOWAIT);
+    if (send_val == -1)
         perror("Error in send");
-
 }
 
 void InitializeClock(char *argv[])
@@ -86,7 +91,7 @@ void InitializeClock(char *argv[])
     {
         execve("clk.out", argv, NULL);
     }
-} 
+}
 
 void ReadFile(struct Queue *q)
 {
