@@ -7,6 +7,7 @@ int ChooseAlgorithms(char *argv[]);
 void InitializeClock(char *argv[]);
 int CreateMsgQueueIPC();
 void SendToScheduler(struct Queue *q,int msgq_id);
+void SendToQueueIPC(processData Data , int msq_id);
 
 int main(int argc, char *argv[])
 {
@@ -50,30 +51,32 @@ void SendToScheduler(struct Queue *All_Processes,int msgq_id)
         int ArrivalTop = peekQueue(All_Processes).arrivaltime;
         while(ArrivalTop == x)
         {
-            printf("\n send queuye \n");
+            /// Send to IPCS :
+            processData Msg = peekQueue(All_Processes);
+            SendToQueueIPC(Msg , msgq_id);
             deQueue(All_Processes);
             if(!isEmptyQueue(All_Processes))
                 ArrivalTop = peekQueue(All_Processes).arrivaltime;
             else
                 ArrivalTop = -1;
         }
+        //wake after 
+        //int wakeTime = peekQueue(All_Processes).arrivaltime - x;
+        //alarm();
+        //pause();
     }
 }
 
 
-int CreateMsgQueueIPC()
+void SendToQueueIPC(processData Data , int msq_id)
 {
-    key_t key_id;
-    int msgq_id ;
-    key_id = ftok("file",100);
-    msgq_id = msgget(key_id,0666 | IPC_CREAT);
-    if(msgq_id == -1)
-    {
-        perror("Error in create");
-        exit(-1);
-    }
+    msgBuff message;
+    message.mtype = 1;
+    message.Data = Data;
+    int send_val = msgsnd(msq_id,&message,sizeof(message.Data), !IPC_NOWAIT);
+    if(send_val == -1)
+        perror("Error in send");
 
-    return msgq_id;
 }
 
 void InitializeClock(char *argv[])

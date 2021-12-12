@@ -9,9 +9,12 @@ int main(int agrc, char * argv[])
     
     //TODO it needs to get the remaining time from somewhere
     //remainingtime = ??;
+    int startClock = getClk();
+    remainingtime = atoi(argv[1]);
     while (remainingtime > 0)
     {
         // remainingtime = ??;
+        remainingtime = remainingtime + startClock - getClk();
     }
     
     destroyClk(false);

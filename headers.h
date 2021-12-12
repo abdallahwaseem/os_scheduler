@@ -73,4 +73,21 @@ void destroyClk(bool terminateAll)
 }
 
 
+//Message Queue IPC function between Scheduler
+int CreateMsgQueueIPC()
+{
+    key_t key_id;
+    int msgq_id ;
+    key_id = ftok("file",100);
+    msgq_id = msgget(key_id,0666 | IPC_CREAT);
+    if(msgq_id == -1)
+    {
+        perror("Error in create");
+        exit(-1);
+    }
+
+    return msgq_id;
+}
+
+
 
