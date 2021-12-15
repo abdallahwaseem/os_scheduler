@@ -20,6 +20,8 @@ typedef short bool;
 #define false 0
 #define running 1
 #define waiting 0
+#define lastProcess -100
+#define LastProcessPriorty 2147483647
 
 #define SHKEY 300
 
