@@ -146,7 +146,7 @@ void handlerALRM(int signum)
 
 FILE *CreateFileAndOpen()
 {
-    char *filename = "processOutput.txt";
+    char *filename = "processOutputSRTN.txt";
 
     // open the file for writing
     FILE *fp = fopen(filename, "w");

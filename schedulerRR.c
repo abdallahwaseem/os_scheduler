@@ -65,7 +65,6 @@ void processCreator()
     }
     deQueue(ReadyProccessQueue);
     // Print in scheduler
-    // HPF only
     if (CurrentProcess.status == paused)
     {
         CurrentProcess.waitingtime = CurrentProcess.waitingtime + getClk() - CurrentProcess.Pausedattime;
@@ -150,7 +149,7 @@ void handlerALRM(int signum)
 
 FILE *CreateFileAndOpen()
 {
-    char *filename = "processOutput.txt";
+    char *filename = "processOutputRR.txt";
 
     // open the file for writing
     FILE *fp = fopen(filename, "w");
