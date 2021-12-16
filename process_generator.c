@@ -11,14 +11,13 @@ void SendToScheduler(struct Queue *q, int msgq_id, int SchedulerPiD);
 void SendToQueueIPC(processData Data, int msq_id);
 int msgq_id_Global;
 void handleAlarm(){};
-//void handleINT(){exit(0);};
-
+// void handleINT(){exit(0);};
 
 int main(int argc, char *argv[])
 {
-    //signal(SIGINT, handleINT);
+    // signal(SIGINT, handleINT);
     signal(SIGCHLD, clearResources);
-    signal(SIGALRM,handleAlarm);
+    signal(SIGALRM, handleAlarm);
     // TODO Initialization
     // 1. Read the input files.
     struct Queue *All_Processes = createQueue();
@@ -33,16 +32,15 @@ int main(int argc, char *argv[])
     printf("current time is %d\n", x);
     // TODO Generation Main Loop
     // 5. Create a data structure for processes and provide it with its parameters.
-    //Done it is in All_Processes and read file
+    // Done it is in All_Processes and read file
     // 6. Send the information to the scheduler at the appropriate time.
     msgq_id_Global = CreateMsgQueueIPC();
     SendToScheduler(All_Processes, msgq_id_Global, SchedulerPiD);
     pause();
     // 7. Clear clock resources and kill the Scheduler
-    //kill(SchedulerPiD, SIGINT);
-    //clearResources(msgq_id);
-    //return 0;
-   
+    // kill(SchedulerPiD, SIGINT);
+    // clearResources(msgq_id);
+    // return 0;
 }
 
 void clearResources()
@@ -50,18 +48,18 @@ void clearResources()
     // TODO Clears all resources in case of interruption
     int pid, status;
     pid = wait(&status);
-    //printf("\n process killed , %d\n",pid);
-    if(WIFEXITED(status))
+    // printf("\n process killed , %d\n",pid);
+    if (WIFEXITED(status))
     {
         msgctl(msgq_id_Global, IPC_RMID, (struct msqid_ds *)0);
         destroyClk(true);
     }
-    //return 0;
+    // return 0;
 }
 
 void SendToScheduler(struct Queue *All_Processes, int msgq_id, int SchedulerPiD)
 {
-    //this loops means that there is still processes in Queue
+    // this loops means that there is still processes in Queue
     while (!isEmptyQueue(All_Processes))
     {
         int wakeSchedule = false;
@@ -79,15 +77,15 @@ void SendToScheduler(struct Queue *All_Processes, int msgq_id, int SchedulerPiD)
             else
                 ArrivalTop = -1;
         }
-        //wake after
+        // wake after
         if (wakeSchedule)
         {
             wakeSchedule = false;
             kill(SchedulerPiD, SIGALRM);
         }
-        //int wakeTime = peekQueue(All_Processes).arrivaltime - x-1;
+        // int wakeTime = peekQueue(All_Processes).arrivaltime - x-1;
         alarm(1);
-        //SetTimer(NULL, 0, 500, (TIMERPROC)& NULL);
+        // SetTimer(NULL, 0, 500, (TIMERPROC)& NULL);
         pause();
     }
 }
@@ -153,7 +151,7 @@ void ReadFile(struct Queue *q)
         }
     }
     // close the file
-    //Will enQueue a last process as a flag, so that the scheduler will know when to clos
+    // Will enQueue a last process as a flag, so that the scheduler will know when to clos
     processData temp;
     temp.priority = LastProcessPriorty;
     temp.remainingtime = LastProcessPriorty;

@@ -7,5 +7,6 @@ typedef struct ProcessData
     int status;
     int waitingtime;
     int remainingtime;
+    int Pausedattime;
 
 } processData;
