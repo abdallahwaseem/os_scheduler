@@ -1,12 +1,12 @@
 build:
-	gcc process_generator.c -o process_generator.out
-	gcc clk.c -o clk.out
-	gcc scheduler.c -o scheduler.out
-	gcc schedulerSRTN.c -o schedulerSRTN.out
-	gcc schedulerHPF.c -o schedulerHPF.out
-	gcc schedulerRR.c -o schedulerRR.out
-	gcc process.c -o process.out
-	gcc test_generator.c -o test_generator.out
+	gcc process_generator.c -o process_generator.out -lm
+	gcc clk.c -o clk.out -lm
+	gcc scheduler.c -o scheduler.out -lm
+	gcc schedulerSRTN.c -o schedulerSRTN.out -lm
+	gcc schedulerHPF.c -o schedulerHPF.out -lm
+	gcc schedulerRR.c -o schedulerRR.out -lm
+	gcc process.c -o process.out -lm
+	gcc test_generator.c -o test_generator.out -lm
 
 clean:
 	rm -f *.out  processes.txt

@@ -4,21 +4,29 @@ void EndScheduler();
 void handlerCHLD(int signum);
 void handlerALRM(int signum);
 FILE *CreateFileAndOpen();
+FILE *CreatePerfFileAndOpen();
 
 int msgq_id;
 int runningProccessRuntime;
 struct Queue *ReadyProccessQueue;
 int isFirstChild = true;
 FILE *OutputFile;
+FILE *OutputFilePref;
 processData CurrentProcess;
 int currentProcessID;
 int ProcessStartAt;
 int isFinished = 0;
 int Quantum = 0;
-
+int noOfProcesses = 0;
+float sumWTA = 0.0;
+float sumWait = 0.0;
+float StdWTA = 0.0;
+int totalRunningTime = 0;
+float sumWTASQ = 0;
 int main(int argc, char *argv[])
 {
     Quantum = strtol(argv[1], NULL, 10);
+    noOfProcesses = atoi(argv[2]);
     initClk();
     // HandlerINT to kill the scheduler after process generator finishes
     // signal(SIGINT, handlerINT);
@@ -30,6 +38,7 @@ int main(int argc, char *argv[])
     // signal(SIGALRM, sigalrm_handlerINT);
 
     OutputFile = CreateFileAndOpen();
+    OutputFilePref = CreatePerfFileAndOpen();
     // Initialize message queue
     msgq_id = CreateMsgQueueIPC();
     // Create The PQ for processes
@@ -91,6 +100,10 @@ void handlerCHLD(int signum)
         {
             int TA = currentTime - CurrentProcess.arrivaltime;
             float WTA = (float)TA / CurrentProcess.runningtime;
+            totalRunningTime += CurrentProcess.runningtime;
+            sumWTA += WTA;
+            sumWait += CurrentProcess.waitingtime;
+            sumWTASQ += pow(WTA, 2);
             fprintf(OutputFile, "At time %d process %d Finished arr %d total %d remain 0 wait %d  TA %d  WTA %.2f\n", currentTime, CurrentProcess.id, CurrentProcess.arrivaltime, CurrentProcess.runningtime, CurrentProcess.waitingtime, TA, WTA);
         }
         else
@@ -102,7 +115,16 @@ void handlerCHLD(int signum)
         }
 
         if (isEmptyQueue(ReadyProccessQueue) && isFinished == 1)
+        {
+            int finishTime = getClk();
+            float CPUUti = (float)((totalRunningTime)*100) / finishTime;
+            float avgWait = sumWait / noOfProcesses;
+            float avgWTA = sumWTA / noOfProcesses;
+            float sumofWTAsuqared = pow(sumWTA, 2) / pow(noOfProcesses, 2);
+            StdWTA = sqrt((sumWTASQ / noOfProcesses) - sumofWTAsuqared);
+            fprintf(OutputFilePref, "CPU utilization = %.1f %%\nAvg WTA= %.2f\nAvg Waiting = %.2f\nStd WTA = %.2f", CPUUti, avgWTA, avgWait, StdWTA);
             EndScheduler();
+        }
 
         processCreator();
     }
@@ -165,5 +187,18 @@ FILE *CreateFileAndOpen()
     // // close the file
     // fclose(fp);
     fprintf(fp, "#At time x process y state arr w total z remain y wait k\n");
+    return fp;
+}
+FILE *CreatePerfFileAndOpen()
+{
+    char *filename = "schedulerRR_perf.txt";
+
+    // open the file for writing
+    FILE *fp = fopen(filename, "w");
+    if (fp == NULL)
+    {
+        printf("Error opening the file %s", filename);
+        return NULL;
+    }
     return fp;
 }

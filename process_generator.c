@@ -11,6 +11,7 @@ void SendToScheduler(struct Queue *q, int msgq_id, int SchedulerPiD);
 void SendToQueueIPC(processData Data, int msq_id);
 int msgq_id_Global;
 void handleAlarm(){};
+int noOfProcesses = 0;
 // void handleINT(){exit(0);};
 
 int main(int argc, char *argv[])
@@ -148,6 +149,7 @@ void ReadFile(struct Queue *q)
             temp.remainingtime = processBuffer[2];
             temp.status = waiting;
             enQueue(q, temp);
+            noOfProcesses++;
         }
     }
     // close the file
@@ -162,9 +164,12 @@ void ReadFile(struct Queue *q)
 
 int ChooseAlgorithms(char *argv[])
 {
-    printf("\nPlease enter scheduling algorithm : \n1)HPF\n2)SRTN\n3)RR)\n ");
+    printf("\nPlease enter scheduling algorithm : \n1)HPF\n2)SRTN\n3)RR\n ");
     int algo;
     char quantum[10];
+    char charnofProcesses[10];
+    sprintf(charnofProcesses, "%d", noOfProcesses);
+
     scanf("%d", &algo);
     if (algo == 3)
     {
@@ -172,7 +177,10 @@ int ChooseAlgorithms(char *argv[])
         printf("\nPlease enter Quantum: \n");
         scanf("%s", quantum);
     }
-    char *argve[] = {"schedulerRR.out", quantum, NULL};
+    char *argve[] = {"schedulerRR.out", quantum, charnofProcesses, NULL};
+    char *argveHPF[] = {"schedulerHPF.out", charnofProcesses, NULL};
+    char *argveSRTN[] = {"schedulerSRTN.out", charnofProcesses, NULL};
+
     // 3. Initiate and create the scheduler and clock processes.
     int pid = fork();
     if (pid == 0)
@@ -181,10 +189,12 @@ int ChooseAlgorithms(char *argv[])
         {
         case 1:
             // Non-preemptive Highest Priority First
-            execve("schedulerHPF.out", argv, NULL);
+
+            execve(argveHPF[0], &argveHPF[0], NULL);
             break;
         case 2:
-            execve("schedulerSRTN.out", argv, NULL);
+
+            execve(argveSRTN[0], &argveSRTN[0], NULL);
             // Shortest Remaining time Next
             break;
         case 3:

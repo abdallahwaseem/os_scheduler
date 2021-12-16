@@ -15,7 +15,7 @@ int main(int agrc, char *argv[])
     int startClock = getClk();
     int Quantum = 0;
     remainingtime = atoi(argv[1]);
-    if (agrc > 2)
+    if (agrc > 3)
     {
         Quantum = atoi(argv[2]);
     }
@@ -24,7 +24,7 @@ int main(int agrc, char *argv[])
     while (clock() < remainingtime * CLOCKS_PER_SEC)
     {
         int runtime = getClk() - startClock;
-        if (agrc > 2 && ((remainingtime < Quantum && runtime == remainingtime) || (Quantum == runtime)))
+        if (agrc > 3 && ((remainingtime < Quantum && runtime == remainingtime) || (Quantum == runtime)))
         {
             raise(SIGINT);
         }
