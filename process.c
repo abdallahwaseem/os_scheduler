@@ -15,22 +15,22 @@ int main(int agrc, char *argv[])
     int startClock = getClk();
     int Quantum = 0;
     remainingtime = atoi(argv[1]);
-    if (agrc > 3)
+   /* if (agrc > 3)
     {
         Quantum = atoi(argv[2]);
-    }
+    }*/
 
     // while (remainingtime > 0)
     while (clock() < remainingtime * CLOCKS_PER_SEC)
     {
-        int runtime = getClk() - startClock;
+       /* int runtime = getClk() - startClock;
         if (agrc > 3 && ((remainingtime < Quantum && runtime == remainingtime) || (Quantum == runtime)))
         {
             raise(SIGINT);
         }
 
         // remainingtime = ??;
-        // remainingtime = remainingtime + startClock - getClk();
+        // remainingtime = remainingtime + startClock - getClk();*/
     }
 
     destroyClk(false);

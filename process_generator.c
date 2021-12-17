@@ -22,21 +22,21 @@ int main(int argc, char *argv[])
     // TODO Initialization
     // 1. Read the input files.
     struct Queue *All_Processes = createQueue();
-    ReadFile(All_Processes);
     // 2. Ask the user for the chosen scheduling algorithm and its parameters, if there are any.
+    ReadFile(All_Processes);
     int SchedulerPiD = ChooseAlgorithms(argv);
     // 4. Use this function after creating the clock process to initialize clock
-    InitializeClock(argv);
-    initClk();
-    // To get time use this
-    int x = getClk();
-    printf("current time is %d\n", x);
     // TODO Generation Main Loop
     // 5. Create a data structure for processes and provide it with its parameters.
     // Done it is in All_Processes and read file
     // 6. Send the information to the scheduler at the appropriate time.
     msgq_id_Global = CreateMsgQueueIPC();
+    InitializeClock(argv);
+    initClk();
     SendToScheduler(All_Processes, msgq_id_Global, SchedulerPiD);
+    // To get time use this
+    int x = getClk();
+    //printf("\ncurrent time is %d\n", x);
     pause();
     // 7. Clear clock resources and kill the Scheduler
     // kill(SchedulerPiD, SIGINT);
@@ -157,7 +157,7 @@ void ReadFile(struct Queue *q)
     processData temp;
     temp.priority = LastProcessPriorty;
     temp.remainingtime = LastProcessPriorty;
-    temp.status = lastProcess;
+    temp.id = lastProcess;
     enQueue(q, temp);
     fclose(fp);
 }

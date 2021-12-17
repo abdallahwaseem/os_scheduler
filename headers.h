@@ -14,6 +14,7 @@
 #include "PriorityQueue.h"
 #include "Queue.h"
 #include "msgbuff.h"
+#include <math.h>
 
 typedef short bool;
 #define true 1

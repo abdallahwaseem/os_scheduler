@@ -18,11 +18,13 @@ float sumWait = 0.0;
 float StdWTA = 0.0;
 int totalRunningTime = 0;
 float sumWTASQ = 0;
+int startTimeFirst = 0;
 
 int main(int argc, char *argv[])
 {
     initClk();
     noOfProcesses = atoi(argv[1]);
+
     // HandlerINT to kill the scheduler after process generator finishes
     // signal(SIGINT, handlerINT);
     // handlerCHLD after the process is completed
@@ -84,10 +86,10 @@ void handlerCHLD(int signum)
         sumWTA += WTA;
         sumWait += CurrentProcess.waitingtime;
         sumWTASQ += pow(WTA, 2);
-        if (peekQueuePQ(ReadyProccessQueue).status == lastProcess)
+        if (peekQueuePQ(ReadyProccessQueue).id == lastProcess)
         {
             int finishTime = getClk();
-            float CPUUti = (float)((totalRunningTime)*100) / finishTime;
+            float CPUUti = (float)((totalRunningTime)*100) / (finishTime- startTimeFirst);
             float avgWait = sumWait / noOfProcesses;
             float avgWTA = sumWTA / noOfProcesses;
             float sumofWTAsuqared = pow(sumWTA, 2) / pow(noOfProcesses, 2);
@@ -123,6 +125,7 @@ void handlerALRM(int signum)
     {
         // Creater Process
         isFirstChild = false;
+        startTimeFirst = message.Data.arrivaltime;
         processCreator();
     }
     signal(SIGALRM, handlerALRM);
@@ -130,7 +133,7 @@ void handlerALRM(int signum)
 
 FILE *CreateFileAndOpen()
 {
-    char *filename = "processOutput.txt";
+    char *filename = "schedulerHPF_log.txt";
 
     // open the file for writing
     FILE *fp = fopen(filename, "w");

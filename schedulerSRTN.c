@@ -22,6 +22,7 @@ float sumWait = 0.0;
 float StdWTA = 0.0;
 int totalRunningTime = 0;
 float sumWTASQ = 0;
+int startTimeFirst = 0;
 
 int main(int argc, char *argv[])
 {
@@ -110,11 +111,11 @@ void handlerCHLD(int signum)
             sumWTASQ += pow(WTA, 2);
         }
 
-        if (peekQueuePQ(ReadyProccessQueue).status == lastProcess)
+        if (peekQueuePQ(ReadyProccessQueue).id == lastProcess)
         {
             int finishTime = getClk();
             printf("\n wta squared = %f  sum wta all squared = %f\n", sumWTASQ, sumWTA);
-            float CPUUti = (float)((totalRunningTime)*100) / finishTime;
+            float CPUUti = (float)((totalRunningTime)*100) / (finishTime- startTimeFirst);
             float avgWait = sumWait / noOfProcesses;
             float avgWTA = sumWTA / noOfProcesses;
             float sumofWTAsuqared = pow(sumWTA, 2) / pow(noOfProcesses, 2);
@@ -151,6 +152,7 @@ void handlerALRM(int signum)
     {
         // Creater Process
         isFirstChild = false;
+        startTimeFirst = message.Data.arrivaltime;
         processCreator();
     }
     // Check if the the process that came is better than the current running
@@ -174,7 +176,7 @@ void handlerALRM(int signum)
 
 FILE *CreateFileAndOpen()
 {
-    char *filename = "processOutputSRTN.txt";
+    char *filename = "schedulerSRTN_log.txt";
 
     // open the file for writing
     FILE *fp = fopen(filename, "w");

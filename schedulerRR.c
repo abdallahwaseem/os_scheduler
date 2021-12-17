@@ -23,6 +23,7 @@ float sumWait = 0.0;
 float StdWTA = 0.0;
 int totalRunningTime = 0;
 float sumWTASQ = 0;
+int startTimeFirst = 0;
 int main(int argc, char *argv[])
 {
     Quantum = strtol(argv[1], NULL, 10);
@@ -60,7 +61,8 @@ void processCreator()
     processData top = peekQueue(ReadyProccessQueue);
     CurrentProcess = top;
     char runProcesstimeChar[10];
-    sprintf(runProcesstimeChar, "%d", top.remainingtime);
+    int sendRunTime = top.remainingtime > Quantum ? Quantum : top.remainingtime;
+    sprintf(runProcesstimeChar, "%d", sendRunTime);
     char Quant[10];
     sprintf(Quant, "%d", Quantum);
     char *argve[] = {"process.out", runProcesstimeChar, Quant, NULL};
@@ -117,7 +119,7 @@ void handlerCHLD(int signum)
         if (isEmptyQueue(ReadyProccessQueue) && isFinished == 1)
         {
             int finishTime = getClk();
-            float CPUUti = (float)((totalRunningTime)*100) / finishTime;
+            float CPUUti = (float)((totalRunningTime)*100) / (finishTime- startTimeFirst);
             float avgWait = sumWait / noOfProcesses;
             float avgWTA = sumWTA / noOfProcesses;
             float sumofWTAsuqared = pow(sumWTA, 2) / pow(noOfProcesses, 2);
@@ -146,7 +148,7 @@ void handlerALRM(int signum)
     int rec_val = msgrcv(msgq_id, &message, sizeof(message.Data), 0, IPC_NOWAIT);
     while (rec_val != -1)
     {
-        if (message.Data.status != lastProcess)
+        if (message.Data.id != lastProcess)
         {
 
             enQueue(ReadyProccessQueue, message.Data);
@@ -162,6 +164,7 @@ void handlerALRM(int signum)
     {
         // Creater Process
         isFirstChild = false;
+        startTimeFirst = message.Data.arrivaltime;
         processCreator();
     }
     // Check if the the process that came is better than the current running
@@ -171,7 +174,7 @@ void handlerALRM(int signum)
 
 FILE *CreateFileAndOpen()
 {
-    char *filename = "processOutputRR.txt";
+    char *filename = "schedulerRR_log.txt";
 
     // open the file for writing
     FILE *fp = fopen(filename, "w");
